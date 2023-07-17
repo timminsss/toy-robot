@@ -10,6 +10,20 @@ class ToyRobot
     'EAST' => [1, 0]
   }.freeze
 
+  LEFT_DIRECTION_CHANGE = {
+    'NORTH' => 'WEST',
+    'WEST' => 'SOUTH',
+    'SOUTH' => 'EAST',
+    'EAST' => 'NORTH'
+  }.freeze
+
+  RIGHT_DIRECTION_CHANGE = {
+    'NORTH' => 'EAST',
+    'EAST' => 'SOUTH',
+    'SOUTH' => 'WEST',
+    'WEST' => 'NORTH'
+  }.freeze
+
   attr_accessor :x, :y, :direction, :robot_on_table
 
   def initialize(x: 0, y: 0, direction: 'NORTH', on_table: false, table_length: 5)
@@ -46,25 +60,13 @@ class ToyRobot
   def left
     return unless @robot_on_table
 
-    left_direction_change = {
-      'NORTH' => 'WEST',
-      'WEST' => 'SOUTH',
-      'SOUTH' => 'EAST',
-      'EAST' => 'NORTH'
-    }
-    @direction = left_direction_change[@direction]
+    @direction = LEFT_DIRECTION_CHANGE[@direction]
   end
 
   def right
     return unless @robot_on_table
 
-    right_direction_change = {
-      'NORTH' => 'EAST',
-      'EAST' => 'SOUTH',
-      'SOUTH' => 'WEST',
-      'WEST' => 'NORTH'
-    }
-    @direction = right_direction_change[@direction]
+    @direction = RIGHT_DIRECTION_CHANGE[@direction]
   end
 
   def report
@@ -82,6 +84,9 @@ class ToyRobot
   def string_a_number?(string)
     Integer(string)
     true
+  # rescue is only run if an error is found above
+  # argument error - if wrong number of arguments are passed or wrong type passed
+  # type error - if wrong type is passed to an argument
   rescue ArgumentError, TypeError
     false
   end

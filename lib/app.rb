@@ -9,10 +9,9 @@ def run
   puts '--- TOY ROBOT GAME ---'
   puts 'Input your first command (first command must be PLACE X, Y, DIRECTION)'
 
-  # ENSURE PLACE COMMAND IS VALID
   input = gets.chomp.upcase
   until input.start_with?('PLACE')
-    puts 'First command must be PLACE'
+    puts 'First command must be PLACE X, Y, DIRECTION'
     input = gets.chomp.upcase
   end
 
