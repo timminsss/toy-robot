@@ -50,9 +50,9 @@ def run_toy_robot
 
   command = gets.chomp.upcase
   until robot.place(command)
+    break if command == 'END'
     first_command_message
     command = gets.chomp.upcase
-    break if command == 'END'
   end
 
   run_commands(robot, command)
