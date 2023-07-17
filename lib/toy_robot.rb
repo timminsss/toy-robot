@@ -35,13 +35,14 @@ class ToyRobot
   end
 
   def place(input)
-    placement = input.upcase.split(/, | |,/, 4)
+    placement = place_command_array(input)
     return unless place_valid?(placement)
 
     @x = placement[1].to_i
     @y = placement[2].to_i
     @direction = placement[3]
     @robot_on_table = true
+    return true
   end
 
   def move
@@ -89,6 +90,10 @@ class ToyRobot
   # type error - if wrong type is passed to an argument
   rescue ArgumentError, TypeError
     false
+  end
+
+  def place_command_array(input)
+    input.upcase.split(/, | |,/, 4)
   end
 
   def place_valid?(placement)
