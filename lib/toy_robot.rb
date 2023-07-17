@@ -42,7 +42,7 @@ class ToyRobot
     @y = placement[2].to_i
     @direction = placement[3]
     @robot_on_table = true
-    return true
+    true
   end
 
   def move
@@ -79,7 +79,7 @@ class ToyRobot
   private
 
   def out_of_scope?(position)
-    position.negative? || position > @table_length - 1
+    position.negative? || position >= @table_length
   end
 
   def string_a_number?(string)
@@ -92,13 +92,19 @@ class ToyRobot
     false
   end
 
-  def place_command_array(input)
-    input.upcase.split(/, | |,/, 4)
+  def valid_direction?(direction)
+    %w[NORTH SOUTH WEST EAST].include?(direction)
   end
 
   def place_valid?(placement)
     string_a_number?(placement[1]) &&
       string_a_number?(placement[2]) &&
-      %w[NORTH SOUTH WEST EAST].include?(placement[3])
+      valid_direction?(placement[3]) &&
+      !out_of_scope?(Integer(placement[1])) &&
+      !out_of_scope?(Integer(placement[2]))
+  end
+
+  def place_command_array(input)
+    input.upcase.split(/, | |,/, 4)
   end
 end
