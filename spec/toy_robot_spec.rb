@@ -26,20 +26,38 @@ describe ToyRobot do
 
   describe '#place' do
     # COME BACK TO THIS
-  end
+    # returns true if successfully placed
+    # placement = array
+    # place valid returns true
+    context 'when provided specific values in correct format' do
+      let()
+      it 'places the robot on the table' do
+        expect do
+          robot.place
+        end
+      end
+    end
+    context 'when place is in scope' do
 
-  describe '#out_of_scope?' do
-    let(:toy_robot) { ToyRobot.new(table_length: table_length) }
-    let(:table_length) { 5 }
+    end
+    context 'when place is correct format' do
 
-    it 'returns true when out of scope' do
-      expect(toy_robot.out_of_scope?(-1)).to eq(true)
     end
 
-    it 'returns true when outwith table dimensions' do
-      expect(toy_robot.out_of_scope?(6)).to eq(true)
-    end
   end
+
+  # describe '#out_of_scope?' do
+  #   let(:toy_robot) { ToyRobot.new(table_length: table_length) }
+  #   let(:table_length) { 5 }
+
+  #   it 'returns true when out of scope' do
+  #     expect(toy_robot.out_of_scope?(-1)).to eq(true)
+  #   end
+
+  #   it 'returns true when outwith table dimensions' do
+  #     expect(toy_robot.out_of_scope?(6)).to eq(true)
+  #   end
+  # end
 
   describe '#move' do
     let(:toy_robot) { ToyRobot.new(on_table: true, direction: direction) }
@@ -93,19 +111,19 @@ describe ToyRobot do
           expect(toy_robot.x).to eq(1)
         end
       end
+    end
 
-      context 'when move is not in scope' do
-        before do
-          allow(toy_robot).to receive(:out_of_scope?).and_return(true)
-        end
+    context 'when move is not in scope' do
+      let(:direction) { 'NORTH' }
+      before do
+        allow(toy_robot).to receive(:out_of_scope?).and_return(true)
+      end
 
-        it 'does not move in any direction' do
-          expect do
-            toy_robot.move
-          end.to change(toy_robot, :x).by(0)
-          .and change(toy_robot, :y).by(0)
-        end
-
+      it 'does not move in any direction' do
+        expect do
+          toy_robot.move
+        end.to change(toy_robot, :x).by(0)
+        .and change(toy_robot, :y).by(0)
       end
     end
 
