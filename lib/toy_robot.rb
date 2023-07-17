@@ -3,6 +3,13 @@
 require 'pry-byebug'
 
 class ToyRobot
+  MOVE_COORD_CHANGE = {
+    'NORTH' => [0, 1],
+    'WEST' => [-1, 0],
+    'SOUTH' => [0, -1],
+    'EAST' => [1, 0]
+  }.freeze
+
   attr_accessor :x, :y, :direction, :robot_on_table
 
   def initialize(x: 0, y: 0, direction: 'NORTH', on_table: false, table_length: 5)
@@ -26,16 +33,14 @@ class ToyRobot
   def move
     return unless @robot_on_table
 
-    case @direction
-    when 'NORTH'
-      @y += 1 unless out_of_scope?(@y + 1)
-    when 'SOUTH'
-      @y -= 1 unless out_of_scope?(@y - 1)
-    when 'WEST'
-      @x -= 1 unless out_of_scope?(@x - 1)
-    when 'EAST'
-      @x += 1 unless out_of_scope?(@x + 1)
-    end
+    movement = MOVE_COORD_CHANGE[@direction]
+    new_x = @x + movement[0]
+    new_y = @y + movement[1]
+
+    return if out_of_scope?(new_x) || out_of_scope?(new_y)
+
+    @x = new_x
+    @y = new_y
   end
 
   def left
@@ -47,7 +52,6 @@ class ToyRobot
       'SOUTH' => 'EAST',
       'EAST' => 'NORTH'
     }
-
     @direction = left_direction_change[@direction]
   end
 
@@ -60,7 +64,6 @@ class ToyRobot
       'SOUTH' => 'WEST',
       'WEST' => 'NORTH'
     }
-
     @direction = right_direction_change[@direction]
   end
 
