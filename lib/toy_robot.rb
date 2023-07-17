@@ -54,16 +54,14 @@ class ToyRobot
   def right
     return unless @robot_on_table
 
-    case @direction
-    when 'NORTH'
-      @direction = 'EAST'
-    when 'SOUTH'
-      @direction = 'WEST'
-    when 'WEST'
-      @direction = 'NORTH'
-    when 'EAST'
-      @direction = 'SOUTH'
-    end
+    right_direction_change = {
+      'NORTH' => 'EAST',
+      'EAST' => 'SOUTH',
+      'SOUTH' => 'WEST',
+      'WEST' => 'NORTH'
+    }
+
+    @direction = right_direction_change[@direction]
   end
 
   def report
