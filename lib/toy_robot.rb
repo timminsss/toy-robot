@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'pry-byebug'
 
 class ToyRobot
@@ -11,13 +13,29 @@ class ToyRobot
     @robot_on_table = on_table
   end
 
-  def place(input)
-    placement = input.split(/, | |,/, 4)
-    puts placement
-    return unless placement[1] && placement[2] && placement[3]
+  def string_a_number?(string)
+    Integer(string)
+    true
+  rescue ArgumentError, TypeError
+    false
+  end
 
-    @x = placement[1]
-    @y = placement[2]
+  def place_valid?(placement)
+    if string_a_number?(placement[1]) &&
+      string_a_number?(placement[2]) &&
+      ['NORTH', 'SOUTH', 'WEST', 'EAST'].include?(placement[3])
+      true
+    else
+      false
+    end
+  end
+
+  def place(input)
+    placement = input.upcase.split(/, | |,/, 4)
+    return unless place_valid?(placement)
+
+    @x = placement[1].to_i
+    @y = placement[2].to_i
     @direction = placement[3]
     @robot_on_table = true
   end
@@ -71,41 +89,6 @@ class ToyRobot
     return unless @robot_on_table
 
     "Current position on the tabletop: #{@x}, #{@y}, #{@direction}"
-  end
-
-  def self.run
-    robot = ToyRobot.new
-
-    puts '--- TOY ROBOT GAME ---'
-    puts 'Input your first command (first command must be PLACE X, Y, DIRECTION)'
-
-    # ENSURE PLACE COMMAND IS VALID
-    input = gets.chomp.upcase
-    until input.start_with?('PLACE')
-      puts 'First command must be PLACE'
-      input = gets.chomp.upcase
-    end
-
-    loop do
-      case input
-      when /\APLACE/
-        robot.place(input)
-      when 'MOVE'
-        robot.move
-      when 'LEFT'
-        robot.left
-      when 'RIGHT'
-        robot.right
-      when 'REPORT'
-        puts robot.report
-      when 'END'
-        puts 'Goodbye'
-        break
-      else
-        puts 'Wrong input, try again.'
-      end
-      input = gets.chomp.upcase
-    end
   end
 
   private
