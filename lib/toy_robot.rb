@@ -79,7 +79,7 @@ class ToyRobot
   private
 
   def out_of_scope?(position)
-    position.negative? || position > @table_length - 1
+    position.negative? || position > @table_length
   end
 
   def string_a_number?(string)
