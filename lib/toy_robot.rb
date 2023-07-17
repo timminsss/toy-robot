@@ -13,23 +13,6 @@ class ToyRobot
     @robot_on_table = on_table
   end
 
-  def string_a_number?(string)
-    Integer(string)
-    true
-  rescue ArgumentError, TypeError
-    false
-  end
-
-  def place_valid?(placement)
-    if string_a_number?(placement[1]) &&
-      string_a_number?(placement[2]) &&
-      ['NORTH', 'SOUTH', 'WEST', 'EAST'].include?(placement[3])
-      true
-    else
-      false
-    end
-  end
-
   def place(input)
     placement = input.upcase.split(/, | |,/, 4)
     return unless place_valid?(placement)
@@ -95,5 +78,18 @@ class ToyRobot
 
   def out_of_scope?(position)
     position.negative? || position > @table_length - 1
+  end
+
+  def string_a_number?(string)
+    Integer(string)
+    true
+  rescue ArgumentError, TypeError
+    false
+  end
+
+  def place_valid?(placement)
+    string_a_number?(placement[1]) &&
+      string_a_number?(placement[2]) &&
+      %w[NORTH SOUTH WEST EAST].include?(placement[3])
   end
 end
