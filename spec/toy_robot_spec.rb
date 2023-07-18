@@ -1,5 +1,16 @@
 require_relative '../lib/toy_robot'
+
+# required to allow user input (gets.chomp)
+# https://stackoverflow.com/questions/17258630/how-do-i-write-an-rspec-test-for-a-ruby-method-that-contains-gets-chomp
 require 'stringio'
+
+def get_command
+  $stdin.gets.chomp
+end
+
+def reset_std_input
+  $stdin = STDIN
+end
 
 describe ToyRobot do
   let(:toy_robot) { ToyRobot.new }
@@ -13,51 +24,95 @@ describe ToyRobot do
     end
 
     context 'when provided specific values' do
-      let(:toy_robot) { ToyRobot.new(x: 3, y: 5, direction: 'SOUTH') }
+      let(:toy_robot) { ToyRobot.new(x: 3, y: 4, direction: 'SOUTH') }
 
-      it 'uses the given values' do
+      it 'uses the specfic values' do
         expect(toy_robot.x).to eq(3)
-        expect(toy_robot.y).to eq(5)
+        expect(toy_robot.y).to eq(4)
         expect(toy_robot.direction).to eq('SOUTH')
       end
     end
-
   end
 
   describe '#place' do
-    # COME BACK TO THIS
-    # returns true if successfully placed
-    # placement = array
-    # place valid returns true
-    context 'when provided specific values in correct format' do
-      let()
+    context 'when provided place command is valid' do
+      before do
+        $stdin = StringIO.new("PLACE 1,1,NORTH\n")
+      end
+
+      it 'turns place command into array' do
+        # .send allows to run private method
+        array = toy_robot.send(:place_command_array, get_command)
+        expect(array).to be_an(Array)
+        expect(array.length).to eq(4)
+      end
+
+      it 'validates place command' do
+        array = toy_robot.send(:place_command_array, get_command)
+        place_valid = toy_robot.send(:place_valid?, array)
+        expect(place_valid).to eq(true)
+      end
+
       it 'places the robot on the table' do
-        expect do
-          robot.place
+        toy_robot.place(get_command)
+        expect(toy_robot.robot_on_table).to eq(true)
+      end
+
+      after do
+        reset_std_input
+      end
+    end
+
+    context 'when provided place command is invalid' do
+      context 'when place command values are in wrong order' do
+        before do
+          $stdin = StringIO.new("PLACE NORTH,1,1\n")
+        end
+
+        it 'does not place robot on table' do
+          expect(toy_robot.place(get_command)).to be_falsey
+        end
+
+        after do
+          reset_std_input
+        end
+      end
+
+      context 'when place command values are not valid' do
+        before do
+          $stdin = StringIO.new("PLACE 1\n")
+        end
+
+        it 'does not place robot on table' do
+          expect(toy_robot.place(get_command)).to be_falsey
+        end
+
+        after do
+          reset_std_input
         end
       end
     end
-    context 'when place is in scope' do
 
+    context 'when provided place command has values out of scope' do
+      it 'does not place robot on the table' do
+        expect(toy_robot.send(:out_of_scope?, 6)).to be_truthy
+      end
     end
-    context 'when place is correct format' do
 
+    context 'when robot is placed on table' do
+      before do
+        $stdin = StringIO.new("PLACE 1,1,NORTH\n")
+      end
+
+      it 'method returns true (needed for app.rb to run)' do
+        expect(toy_robot.place(get_command)).to be_truthy
+      end
+
+      after do
+        reset_std_input
+      end
     end
-
   end
-
-  # describe '#out_of_scope?' do
-  #   let(:toy_robot) { ToyRobot.new(table_length: table_length) }
-  #   let(:table_length) { 5 }
-
-  #   it 'returns true when out of scope' do
-  #     expect(toy_robot.out_of_scope?(-1)).to eq(true)
-  #   end
-
-  #   it 'returns true when outwith table dimensions' do
-  #     expect(toy_robot.out_of_scope?(6)).to eq(true)
-  #   end
-  # end
 
   describe '#move' do
     let(:toy_robot) { ToyRobot.new(on_table: true, direction: direction) }
@@ -65,6 +120,7 @@ describe ToyRobot do
 
     context 'when move is in scope' do
       before do
+        #  receive stubs/mocks out of scope method to false without running method
         allow(toy_robot).to receive(:out_of_scope?).and_return(false)
       end
 
@@ -82,7 +138,7 @@ describe ToyRobot do
       context 'when direction is south' do
         let(:direction) { 'SOUTH' }
 
-        it 'increases the y coordinate by 1' do
+        it 'decreases the y coordinate by 1' do
           expect do
             toy_robot.move
           end.to change(toy_robot, :y).by(-1)
@@ -93,7 +149,7 @@ describe ToyRobot do
       context 'when direction is west' do
         let(:direction) { 'WEST' }
 
-        it 'increases the y coordinate by 1' do
+        it 'decreases the x coordinate by 1' do
           expect do
             toy_robot.move
           end.to change(toy_robot, :x).by(-1)
@@ -104,7 +160,7 @@ describe ToyRobot do
       context 'when direction is east' do
         let(:direction) { 'EAST' }
 
-        it 'increases the y coordinate by 1' do
+        it 'increases the x coordinate by 1' do
           expect do
             toy_robot.move
           end.to change(toy_robot, :x).by(1)
@@ -122,8 +178,10 @@ describe ToyRobot do
       it 'does not move in any direction' do
         expect do
           toy_robot.move
-        end.to change(toy_robot, :x).by(0)
-        .and change(toy_robot, :y).by(0)
+        end.to_not change(toy_robot, :x)
+        expect do
+          toy_robot.move
+        end.to_not change(toy_robot, :y)
       end
     end
 
@@ -131,34 +189,20 @@ describe ToyRobot do
       let(:toy_robot) { ToyRobot.new(on_table: false, x: 3, y: 3) }
 
       it 'does not move in any direction' do
-        toy_robot.direction = 'NORTH'
-        expect do
-          toy_robot.move
-        end.to change(toy_robot, :x).by(0)
-        .and change(toy_robot, :y).by(0)
-
-        toy_robot.direction = 'EAST'
-        expect do
-          toy_robot.move
-        end.to change(toy_robot, :x).by(0)
-        .and change(toy_robot, :y).by(0)
-
-        toy_robot.direction = 'SOUTH'
-        expect do
-          toy_robot.move
-        end.to change(toy_robot, :x).by(0)
-        .and change(toy_robot, :y).by(0)
-
-        toy_robot.direction = 'WEST'
-        expect do
-          toy_robot.move
-        end.to change(toy_robot, :x).by(0)
-        .and change(toy_robot, :y).by(0)
+        directions = %w[NORTH SOUTH WEST EAST]
+        directions.each do |direction|
+          toy_robot.direction = direction
+          expect do
+            toy_robot.move
+          end.to_not change(toy_robot, :x)
+          expect do
+            toy_robot.move
+          end.to_not change(toy_robot, :y)
+        end
       end
     end
   end
 
-  # Testing the left method
   describe '#left' do
     context 'when robot is not on table' do
       it 'does not turn left' do
@@ -214,7 +258,6 @@ describe ToyRobot do
     end
   end
 
-  # Testing the right method
   describe '#right' do
     context 'when robot is not on table' do
       it 'does not turn right' do
@@ -284,37 +327,5 @@ describe ToyRobot do
         expect(toy_robot.report).to eq('Current position on the tabletop: 1, 2, NORTH')
       end
     end
-  end
-
-  describe 'run' do
-    # COME BACK TO THIS
-    # before do
-    #   allow(toy_robot).to receive(:place).and_call_original
-    # end
-    # mock putting right into the input'
-    # expect(toy_robot).to receive(:right)
-
-    # # PLACE  1 4 EAST
-    # expect(toy_robot).to receive(:place).with([1,2,'EAST'])
-
-    # it 'places the robot on table and sets the coordinates and direction' do
-    #   input = StringIO.new("PLACE 1,2,NORTH\nRIGHT\nMOVE\nREPORT\nEND\n")
-    #   output = StringIO.new
-
-    #   # Temporarily redirect standard input and output to the StringIO objects
-    #   $stdin = input
-    #   $stdout = output
-
-    #   allow_any_instance_of(Kernel).to receive(:puts) { |_, message| output.puts(message) }
-
-
-    #   # Run the .run method
-    #   ToyRobot.run
-
-    #   # Reset standard input and output to their original values after the test
-    #   $stdin = STDIN
-    #   $stdout = STDOUT
-    #   expect(output.string).to eq('--- TOY ROBOT GAME ---\nInput your first command (first command must be PLACE X, Y, DIRECTION)\nCurrent position on the tabletop: 1, 2, NORTH\nCurrent position on the tabletop: 2, 1, EAST\nGoodbye\n')
-    # end
   end
 end
