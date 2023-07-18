@@ -1,10 +1,12 @@
+# frozen_string_literal: true
+
 require_relative '../lib/toy_robot'
 
 # required to allow user input (gets.chomp)
 # https://stackoverflow.com/questions/17258630/how-do-i-write-an-rspec-test-for-a-ruby-method-that-contains-gets-chomp
 require 'stringio'
 
-def get_command
+def gets_command
   $stdin.gets.chomp
 end
 
@@ -17,7 +19,6 @@ describe ToyRobot do
 
   describe '.new' do
     it 'sets the default initial values' do
-
       expect(toy_robot.x).to eq(0)
       expect(toy_robot.y).to eq(0)
       expect(toy_robot.direction).to eq('NORTH')
@@ -42,20 +43,20 @@ describe ToyRobot do
 
       it 'turns place command into array' do
         # .send allows to run private method
-        array = toy_robot.send(:place_command_array, get_command)
+        array = toy_robot.send(:place_command_array, gets_command)
         expect(array).to be_an(Array)
         expect(array.length).to eq(4)
       end
 
       it 'validates place command' do
-        array = toy_robot.send(:place_command_array, get_command)
+        array = toy_robot.send(:place_command_array, gets_command)
         place_valid = toy_robot.send(:place_valid?, array)
-        expect(place_valid).to eq(true)
+        expect(place_valid).to be_truthy
       end
 
       it 'places the robot on the table' do
-        toy_robot.place(get_command)
-        expect(toy_robot.robot_on_table).to eq(true)
+        toy_robot.place(gets_command)
+        expect(toy_robot.robot_on_table).to be_truthy
       end
 
       after do
@@ -70,7 +71,7 @@ describe ToyRobot do
         end
 
         it 'does not place robot on table' do
-          expect(toy_robot.place(get_command)).to be_falsey
+          expect(toy_robot.place(gets_command)).to be_falsey
         end
 
         after do
@@ -84,7 +85,7 @@ describe ToyRobot do
         end
 
         it 'does not place robot on table' do
-          expect(toy_robot.place(get_command)).to be_falsey
+          expect(toy_robot.place(gets_command)).to be_falsey
         end
 
         after do
@@ -105,7 +106,7 @@ describe ToyRobot do
       end
 
       it 'method returns true (needed for app.rb to run)' do
-        expect(toy_robot.place(get_command)).to be_truthy
+        expect(toy_robot.place(gets_command)).to be_truthy
       end
 
       after do

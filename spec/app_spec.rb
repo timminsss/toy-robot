@@ -1,66 +1,88 @@
-require_relative '../lib/app.rb'
-require_relative '../lib/toy_robot.rb'
+# frozen_string_literal: true
 
-require 'stringio'
+require_relative '../lib/toy_robot_app'
+require_relative '../lib/toy_robot'
 
-def get_command
-  $stdin.gets.chomp
-end
+describe ToyRobotApp do
+  let(:toy_robot_app) { ToyRobotApp.new }
 
-
-describe 'app' do
-  describe '#run_commands' do
-    # before do
-    #   $stdin = StringIO.new("PLACE 1,1,NORTH\n")
-    # end
-    # after do
-    #   $stdin = STDIN
-    # end
-    let(:toy_robot) { ToyRobot.new}
-    context 'when giving the toy robot commands' do
-      it 'place command runs place method' do
-        # # Mocking standard input with StringIO
-
-        $stdin = StringIO.new("PLACE 1,1,NORTH\n")
-
-        byebug
-        run_commands(toy_robot, get_command)
-
-        $stdin = STDIN
-        expect(toy_robot.report).to eq('Current position on the tabletop: 1, 1, NORTH')
+  describe '#messages' do
+    context 'when welcome_message called' do
+      it 'welcome message displays' do
+        message = "--- TOY ROBOT ---\nInput your first command (first command must be PLACE X, Y, DIRECTION)\n"
+        expect do
+          toy_robot_app.welcome_message
+        end.to output(message).to_stdout
       end
-
-
-
-      # it 'places, moves, turns robot left/right & reports robot position when commands are valid' do
-      #   toy_robot.place('place 0,0,north')
-      #   toy_robot.move
-      #   toy_robot.right
-      #   toy_robot.move
-      #   expect(toy_robot.report).to eq('Current position on the tabletop: 1, 1, EAST')
-      # end
-
-      # context 'when commands are not valid' do
-      #   it 'does not place robot on tabletop' do
-      #     toy_robot.place('0,0,north')
-      #     expect(toy_robot.report).to be_nil
-      #   end
-      #   it 'does not move if at edge of tabletop' do
-      #     toy_robot.place('4,4,north')
-      #     toy_robot.move
-      #     expect(toy_robot.report).to be_nil
-      #   end
-      # end
-
-      # it 'does not do anything with a random command' do
-      #   toy_robot.direction
-      #   expect(toy_robot.report).to be_nil
-      # end
     end
 
-    # it 'stops running if command is end at the start' do
-    #   toy_robot.end
-    #   expect(toy_robot)
-    # end
+    context 'when first_command_message called' do
+      it 'first command message displays' do
+        message = "First command must be PLACE X, Y, DIRECTION\n"
+        expect do
+          toy_robot_app.first_command_message
+        end.to output(message).to_stdout
+      end
+    end
+
+    context 'when wrong_command_message called' do
+      it 'wrong command message displays' do
+        message = "Wrong input, try again. Commands are PLACE, MOVE, LEFT, RIGHT, REPORT, END\n"
+        expect do
+          toy_robot_app.wrong_command_message
+        end.to output(message).to_stdout
+      end
+    end
+
+    context 'when goodbye_message called' do
+      it 'goodbye message displays' do
+        message = "Goodbye - thanks for coming by.\n"
+        expect do
+          toy_robot_app.goodbye_message
+        end.to output(message).to_stdout
+      end
+    end
+  end
+
+  describe '#run_commands' do
+    context 'when first command is END' do
+      it 'breaks out of the loop' do
+        allow(toy_robot_app).to receive(:gets).and_return("END\n")
+        expect(toy_robot_app).to receive(:goodbye_message).once
+
+        # start loop with valid place command
+        toy_robot_app.run_commands('END')
+      end
+    end
+
+    context 'when any command is END' do
+      it 'breaks out of the loop' do
+        allow(toy_robot_app).to receive(:gets).and_return("END\n")
+        expect(toy_robot_app).to receive(:goodbye_message).once
+
+        toy_robot_app.run_commands('PLACE 1,2,NORTH')
+      end
+    end
+
+    context 'when there is a sequence of commands' do
+      it 'outputs the correct report when "REPORT" command is given' do
+        # this allow stubs the input to simulate user input
+        allow(toy_robot_app).to receive(:command_input).and_return(
+          'PLACE 1,1,NORTH',
+          'MOVE',
+          'MOVE',
+          'RIGHT',
+          'MOVE',
+          'REPORT',
+          'END'
+        )
+
+        # this stubs the puts method - catches the output
+        output = StringIO.new
+        allow($stdout).to receive(:puts) { |*args| output.puts(*args) }
+        toy_robot_app.run_toy_robot
+        expect(output.string).to include('Current position on the tabletop: 2, 3, EAST')
+      end
+    end
   end
 end
