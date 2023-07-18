@@ -24,7 +24,7 @@ $ ruby -v
 
 ## Installation
 
-Clone the repository and set up on your local machine.
+Clone the repository (or copy over from the file I send) and set up on your local machine.
 ```
 $ git clone https://github.com/timminsss/toy-robot.git
 $ cd toy-robot
@@ -33,20 +33,23 @@ $ bundle install
 
 Now you're ready to go - run the project:
 ```
-ruby lib/app.rb
+$ ruby lib/toy_robot_app.rb
 ```
 
 ## Testing
 
-Start testing using rspec:
+Test using rspec.
+
+There are 2 files that can be tested:
 ```
-rspec
+$ rspec spec/toy_robot_spec.rb
+$ rspec spec/app_spec.rb
 ```
 
 ## Usage
 
 ```
-ruby lib/app.rb
+$ ruby lib/toy_robot_app.rb
 ```
 This will start the app, and give a prompt:
 ```
@@ -57,6 +60,8 @@ Commands are as follows:
 
 - PLACE X,Y,DIRECTION
   - Puts the toy robot on the table in position X,Y and facing NORTH, SOUTH, EAST or WEST.
+  - e.g. PLACE 1,2,NORTH.
+  - This command must be run first.
 - MOVE
   - Moves the toy robot one unit forward in the direction it is currently facing.
 - LEFT
@@ -65,6 +70,7 @@ Commands are as follows:
   - Rotates the robot 90 degrees in the right direction without changing the position of the robot.
 - REPORT
   - Announces the X,Y and direction of the robot.
+  - This can be run many times.
 - END
   - Ends the application.
 
